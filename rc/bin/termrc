@@ -1,6 +1,7 @@
 #!/bin/rc
 # terminal startup
-TIMESYNCARGS=(-rLa1000000)
+#TIMESYNCARGS=(-rLa1000000)
+TIMESYNCARGS=(-n pool.ntp.org)
 
 mntgen -s slashn && chmod 666 /srv/slashn
 
