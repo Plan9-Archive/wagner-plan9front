@@ -235,7 +235,8 @@ plumbquit(Plumbmsg *msg)
 enum{
 	Restore = 0,
 	Zin,
-	Fit,
+	FitHeight,
+	FitWidth,
 	Rot,
 	Upside,
 	Empty1,
@@ -265,7 +266,8 @@ viewer(Document *dd)
  	static char *miditems[] = {
  		"orig size",
  		"zoom in",
- 		"fit window",
+ 		"fit height",
+		"fit width",
  		"rotate 90",
  		"upside down",
  		"",
@@ -555,7 +557,7 @@ viewer(Document *dd)
 						flushimage(display, 1);
 						break;
 					}
-				case Fit:	/* fit */
+				case FitHeight:	/* fit height */
 					{
 						double delta;
 						Rectangle r;
@@ -580,6 +582,32 @@ viewer(Document *dd)
 						flushimage(display, 1);
 						break;
 					}
+				case FitWidth:		/* fit width */
+					{
+						double delta;
+						Rectangle r;
+						
+						delta = (double)Dx(screen->r)/(double)Dx(im->r);
+						if((double)Dx(im->r)*delta != Dy(screen->r))
+							delta = (double)Dx(screen->r)/(double)Dx(im->r);
+
+						r = Rect(0, 0, (int)((double)Dx(im->r)*delta), (int)((double)Dy(im->r)*delta));
+						esetcursor(&reading);
+						tmp = xallocimage(display, r, im->chan, 0, DBlack);
+						if(tmp == nil) {
+							fprint(2, "out of memory during fit: %r\n");
+							wexits("memory");
+						}
+						resample(im, tmp);
+						im = tmp;
+						delayfreeimage(tmp);
+						esetcursor(nil);
+						ul = screen->r.min;
+						redraw(screen);
+						flushimage(display, 1);
+						break;
+					}
+
 				case Rot:	/* rotate 90 */
 					angle = (angle+90) % 360;
 					showpage(page, &menu);
